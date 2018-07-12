@@ -28,10 +28,10 @@ class DocElement extends DocBase {
   }
 
   childrenOfType (type) {
-    const filtered = Array.from(this.children)
+    const filtered = Array.from(this.children.values())
       .filter(child => child.docType === type)
 
-    return filtered.size ? filtered : null
+    return filtered.length ? filtered : null
   }
 
   get props () {
@@ -186,6 +186,22 @@ class DocElement extends DocBase {
       name: 'Examples',
       value: this.examples.map(ex => `\`\`\`js\n${ex}\n\`\`\``).join('\n')
     })
+  }
+
+  toJSON () {
+    const json = {
+      name: this.name,
+      description: this.description
+    }
+
+    if (this.props) json.props = this.props.map(prop => prop.name)
+    if (this.methods) json.methods = this.methods.map(method => method.name)
+    if (this.events) json.events = this.events.map(event => event.name)
+    if (this.params) json.params = this.params.map(param => param.toJSON())
+    if (this.type) json.type = this.type.join('')
+    if (this.examples) json.examples = this.examples
+
+    return json
   }
 
   formatText (text) {

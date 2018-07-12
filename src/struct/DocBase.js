@@ -1,6 +1,6 @@
 class DocBase {
   constructor (json) {
-    this.json = json
+    this.originalJSON = json
     this.children = new Map()
   }
 

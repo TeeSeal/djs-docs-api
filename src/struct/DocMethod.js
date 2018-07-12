@@ -18,13 +18,29 @@ class DocMethod extends DocElement {
   }
 
   get flatReturn () {
-    if (!this.returns) return 'void'
     return flatten(this.returns.types || this.returns)
   }
 
   get formattedReturn () {
     if (!this.returns) return '**Void**'
-    return [this.doc.formatType(this.flatReturn), this.returns.description].filter(text => text).join('\n')
+    return [this.doc.formatType(this.flatReturn), this.returns.description]
+      .filter(text => text)
+      .join('\n')
+  }
+
+  toJSON () {
+    const json = super.toJSON()
+    const returnType = this.returns
+      ? flatten(this.returns.types || this.returns).join('')
+      : 'void'
+
+    json.returns = { type: returnType }
+
+    if (this.returns.description) {
+      json.returns.description = this.returns.description
+    }
+
+    return json
   }
 }
 
