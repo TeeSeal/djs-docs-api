@@ -158,10 +158,12 @@ class DocElement extends DocBase {
   toJSON () {
     const json = {
       name: this.name,
-      description: this.description
+      description: this.description,
+      internal_type: this.docType
     }
 
     if (this.props) json.props = this.props.map(prop => prop.name)
+    if (this.parent) json.parent = this.parent.name
     if (this.methods) json.methods = this.methods.map(method => method.name)
     if (this.events) json.events = this.events.map(event => event.name)
     if (this.params) json.params = this.params.map(param => param.toJSON())

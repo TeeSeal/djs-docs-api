@@ -54,11 +54,11 @@ class Doc extends DocBase {
   search (query) {
     const result = this.fuse.search(query).slice(0, 10)
     if (!result.length) return null
-    return result.map(name => this.get(name.split('#')))
+    return result.map(name => this.get(...name.split('#')))
   }
 
   resolveEmbed (query) {
-    const element = this.get(query.split(/\.|#/))
+    const element = this.get(...query.split(/\.|#/))
     if (element) return element.embed()
 
     const searchResults = this.search(query)
@@ -154,7 +154,11 @@ class Doc extends DocBase {
       rpc: 'devsnek'
     }[project]
 
-    const { data } = await fetch(`https://raw.githubusercontent.com/${dev}/${project}/docs/${branch}.json`)
+    const { data } = await fetch(
+      `https://raw.githubusercontent.com/${dev}/${project}/docs/${branch}.json`
+    ).catch(() => ({}))
+    if (!data) return null
+
     return new Doc(name, data)
   }
 }
