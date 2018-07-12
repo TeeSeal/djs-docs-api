@@ -6,6 +6,10 @@
   "repository": "git@github.com:SortaMoe/djs-docs-api.git",
   "author": "TeeSeal <teesealz@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js",
+    "lint": "eslint ."
+  },
   "dependencies": {
     "axios": "^0.18.0",
     "common-tags": "^1.8.0",
