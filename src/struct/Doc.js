@@ -34,26 +34,6 @@ class Doc extends DocBase {
     docCache.set(name, this)
   }
 
-  formatType (types) {
-    const typestring = types
-      .map((text, index) => {
-        if (/<|>|\*/.test(text)) {
-          return text
-            .split('')
-            .map(char => `\\${char}`)
-            .join('')
-        }
-
-        const typeElem = this.children.get(text.toLowerCase())
-        const prependOr = index !== 0 && /\w|>/.test(types[index - 1]) && /\w/.test(text)
-
-        return (prependOr ? '|' : '') + (typeElem ? typeElem.link : text)
-      })
-      .join('')
-
-    return `**${typestring}**`
-  }
-
   get (...terms) {
     terms = terms.map(term => term.toLowerCase())
 
@@ -90,21 +70,6 @@ class Doc extends DocBase {
     return embed
   }
 
-  toFuseFormat () {
-    const parents = Array.from(this.children.values())
-
-    const children = parents
-      .map(parent => Array.from(parent.children.values()))
-      .reduce((a, b) => a.concat(b))
-
-    const formattedParents = parents
-      .map(({ name }) => ({ id: name, name }))
-    const formattedChildren = children
-      .map(({ name, parent }) => ({ id: `${parent.name}#${name}`, name }))
-
-    return formattedParents.concat(formattedChildren)
-  }
-
   baseEmbed () {
     const [project, branch] = this.name.split('/')
     const title = {
@@ -121,6 +86,41 @@ class Doc extends DocBase {
         icon_url: ICON
       }
     }
+  }
+
+  formatType (types) {
+    const typestring = types
+      .map((text, index) => {
+        if (/<|>|\*/.test(text)) {
+          return text
+            .split('')
+            .map(char => `\\${char}`)
+            .join('')
+        }
+
+        const typeElem = this.children.get(text.toLowerCase())
+        const prependOr = index !== 0 && /\w|>/.test(types[index - 1]) && /\w/.test(text)
+
+        return (prependOr ? '|' : '') + (typeElem ? typeElem.link : text)
+      })
+      .join('')
+
+    return `**${typestring}**`
+  }
+
+  toFuseFormat () {
+    const parents = Array.from(this.children.values())
+
+    const children = parents
+      .map(parent => Array.from(parent.children.values()))
+      .reduce((a, b) => a.concat(b))
+
+    const formattedParents = parents
+      .map(({ name }) => ({ id: name, name }))
+    const formattedChildren = children
+      .map(({ name, parent }) => ({ id: `${parent.name}#${name}`, name }))
+
+    return formattedParents.concat(formattedChildren)
   }
 
   static getRepoURL (id) {
