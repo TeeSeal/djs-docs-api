@@ -1,8 +1,7 @@
-const { Collection } = require('discord.js')
-
 class DocBase {
-  constructor () {
-    this.children = new Collection()
+  constructor (json) {
+    this.json = json
+    this.children = new Map()
   }
 
   addChild (child) {

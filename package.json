@@ -9,9 +9,10 @@
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
+    "common-tags": "^1.8.0",
     "express": "^4.16.3",
-    "morgan": "^1.9.0",
-    "wade": "^0.3.3"
+    "fuse.js": "^3.2.1",
+    "morgan": "^1.9.0"
   },
   "devDependencies": {
     "eslint": "^5.1.0",

@@ -1,6 +1,5 @@
-const request = require('snekfetch')
 const Fuse = require('fuse.js')
-const { MessageEmbed } = require('discord.js')
+const { get: fetch } = require('axios')
 
 const DocBase = require('./DocBase')
 const DocClass = require('./DocClass')
@@ -12,9 +11,8 @@ const ICON = 'https://i.imgur.com/LM8YCyk.png'
 
 class Doc extends DocBase {
   constructor (name, docs) {
-    super()
+    super(docs)
     this.name = name
-    this.docs = docs
     this.baseURL = `https://discord.js.org/#/docs/${name}/`
     this.repoURL = Doc.getRepoURL(name)
 
@@ -92,52 +90,62 @@ class Doc extends DocBase {
   }
 
   toJSON () {
-    const parents = this.children.map(({ name }) => ({ id: name, name }))
+    const parents = Array.from(this.children.values())
 
-    const children = this.children
-      .map(parent =>
-        parent.children.map(child => ({
-          id: `${parent.name}#${child.name}`,
-          name: child.name
-        })))
+    const children = parents
+      .map(parent => Array.from(parent.children.values()))
       .reduce((a, b) => a.concat(b))
 
-    return parents.concat(children)
+    const formattedParents = parents
+      .map(({ name }) => ({ id: name, name }))
+    const formattedChildren = children
+      .map(({ name, parent }) => ({ id: `${parent.name}#${name}`, name }))
+
+    return formattedParents.concat(formattedChildren)
   }
 
   baseEmbed () {
-    const [docs, branch] = this.name.split('/')
-    const author = {
-      rpc: 'RPC Docs',
+    const [project, branch] = this.name.split('/')
+    const title = {
+      'discord.js': `Discord.js Docs`,
       commando: 'Commando Docs',
-      main: `Discord.js Docs (${branch})`
-    }[docs]
+      rpc: 'RPC Docs'
+    }[project]
 
-    return new MessageEmbed().setAuthor(author, ICON).setColor(0x2296f3)
+    return {
+      color: 0x2296f3,
+      author: {
+        name: `${title} (${branch})`,
+        url: this.baseURL,
+        icon_url: ICON
+      }
+    }
   }
 
   static getRepoURL (id) {
     const [name, branch] = id.split('/')
     const project = {
       main: 'discord.js',
-      rpc: 'RPC',
-      commando: 'Commando'
+      commando: 'Commando',
+      rpc: 'RPC'
     }[name]
 
     return `https://github.com/discordjs/${project}/blob/${branch}/`
   }
 
-  static async fetch (version) {
-    const [dev, project, branch, name] = {
-      commando: ['Gawdl3y', 'discord.js-commando', 'master', 'commando/master'],
-      rpc: ['devsnek', 'discord-rpc', 'master', 'rpc/master']
-    }[version] || ['hydrabolt', 'discord.js', version, `main/${version}`]
-
+  static async fetch (project, branch) {
+    const name = `${project}/${branch}`
     if (docCache.has(name)) return docCache.get(name)
 
-    const { text } = await request.get(`https://raw.githubusercontent.com/${dev}/${project}/docs/${branch}.json`)
+    const dev = {
+      'discord.js': 'hydrabolt',
+      command: 'Gawdl3y',
+      rpc: 'devsnek'
+    }[project]
 
-    return new Doc(name, JSON.parse(text))
+    console.log(`https://raw.githubusercontent.com/${dev}/${project}/docs/${branch}.json`)
+    const { data } = await fetch(`https://raw.githubusercontent.com/${dev}/${project}/docs/${branch}.json`)
+    return new Doc(name, data)
   }
 }
 

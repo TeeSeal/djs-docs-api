@@ -1,5 +1,5 @@
 const DocElement = require('./DocElement')
-const { flatten } = require('../../util/Util')
+const { flatten } = require('./Util')
 
 class DocProp extends DocElement {
   constructor (parent, data) {

@@ -12,15 +12,15 @@ const types = {
 }
 
 class DocElement extends DocBase {
-  constructor (doc, docType, { name, description, meta }, parent) {
-    super()
+  constructor (doc, docType, data, parent) {
+    super(data)
     this.doc = doc
     this.docType = docType
     this.parent = parent || null
 
-    this.name = name
-    this.description = description
-    this.meta = meta
+    this.name = data.name
+    this.description = data.description
+    this.meta = data.meta
 
     this.return = null
     this.examples = null
@@ -28,7 +28,9 @@ class DocElement extends DocBase {
   }
 
   childrenOfType (type) {
-    const filtered = this.children.filter(child => child.docType === type)
+    const filtered = Array.from(this.children)
+      .filter(child => child.docType === type)
+
     return filtered.size ? filtered : null
   }
 
@@ -101,11 +103,16 @@ class DocElement extends DocBase {
 
     if (this.access === 'private') name += ' **PRIVATE**'
 
-    embed.setDescription(`${name}\n${this.formatText(this.description)}`).setURL(this.url)
-
+    embed.description = `${name}\n${this.formatText(this.description)}`
+    embed.url = this.url
+    embed.fields = []
     this.formatEmbed(embed)
+    embed.fields.push({
+      name: '\u200b',
+      value: `[View source](${this.sourceURL})`
+    })
 
-    return embed.addField('\u200b', `[View source](${this.sourceURL})`)
+    return embed
   }
 
   formatEmbed (embed) {
@@ -120,44 +127,65 @@ class DocElement extends DocBase {
 
   attachProps (embed) {
     if (!this.props) return
-    embed.addField('Properties', this.props.map(prop => `\`${prop.name}\``).join(' '))
+    embed.fields.push({
+      name: 'Properties',
+      value: this.props.map(prop => `\`${prop.name}\``).join(' ')
+    })
   }
 
   attachMethods (embed) {
     if (!this.methods) return
-    embed.addField('Methods', this.methods.map(method => `\`${method.name}\``).join(' '))
+    embed.fields.push({
+      name: 'Methods',
+      value: this.methods.map(method => `\`${method.name}\``).join(' ')
+    })
   }
 
   attachEvents (embed) {
     if (!this.events) return
-    embed.addField('Events', this.events.map(event => `\`${event.name}\``).join(' '))
+    embed.fields.push({
+      name: 'Events',
+      value: this.events.map(event => `\`${event.name}\``).join(' ')
+    })
   }
 
   attachParams (embed) {
     if (!this.params) return
-    const params = this.params.map(
-      param => stripIndents`
-      ${param.formattedName} ${param.formattedType}
-      ${param.description}
-    `
-    )
+    const params = this.params.map(param => {
+      return stripIndents`
+        ${param.formattedName} ${param.formattedType}
+        ${param.description}
+      `
+    })
 
-    embed.addField('Params', params.join('\n\n'))
+    embed.fields.push({
+      name: 'Params',
+      value: params.join('\n\n')
+    })
   }
 
   attachReturn (embed) {
     if (!this.returns) return
-    embed.addField('Returns', this.formattedReturn)
+    embed.fields.push({
+      name: 'Returns',
+      value: this.formattedReturn
+    })
   }
 
   attachType (embed) {
     if (!this.type) return
-    embed.addField('Type', this.formattedType)
+    embed.fields.push({
+      name: 'Type',
+      value: this.formattedType
+    })
   }
 
   attachExamples (embed) {
     if (!this.examples) return
-    embed.addField('Examples', this.examples.map(ex => `\`\`\`js\n${ex}\n\`\`\``).join('\n'))
+    embed.fields.push({
+      name: 'Examples',
+      value: this.examples.map(ex => `\`\`\`js\n${ex}\n\`\`\``).join('\n')
+    })
   }
 
   formatText (text) {

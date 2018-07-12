@@ -1,6 +1,6 @@
 const DocElement = require('./DocElement')
 const DocParam = require('./DocParam')
-const { flatten } = require('../../util/Util')
+const { flatten } = require('./Util')
 
 class DocMethod extends DocElement {
   constructor (parent, data) {
@@ -17,10 +17,14 @@ class DocMethod extends DocElement {
     return [this.parent.name, this.static ? '.' : '#', this.name, '()'].join('')
   }
 
+  get flatReturn () {
+    if (!this.returns) return 'void'
+    return flatten(this.returns.types || this.returns)
+  }
+
   get formattedReturn () {
-    if (!this.returns) return `**Void**`
-    const type = this.returns.types || this.returns
-    return [this.doc.formatType(flatten(type)), this.returns.description].filter(text => text).join('\n')
+    if (!this.returns) return '**Void**'
+    return [this.doc.formatType(this.flatReturn), this.returns.description].filter(text => text).join('\n')
   }
 }
 
