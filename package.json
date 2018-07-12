@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Discord.JS docs API.",
   "main": "src/index.js",
-  "repository": "git@github.com:SortaMoe/djs-docs-api.git",
+  "repository": "git@github.com:TeeSeal/djs-docs-api.git",
   "author": "TeeSeal <teesealz@gmail.com>",
   "license": "MIT",
   "scripts": {
