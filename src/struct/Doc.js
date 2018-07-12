@@ -20,7 +20,7 @@ class Doc extends DocBase {
     this.adoptAll(docs.typedefs, DocTypedef)
     this.adoptAll(docs.interfaces, DocInterface)
 
-    this.fuse = new Fuse(this.toJSON(), {
+    this.fuse = new Fuse(this.toFuseFormat(), {
       shouldSort: true,
       threshold: 0.5,
       location: 0,
@@ -54,8 +54,8 @@ class Doc extends DocBase {
     return `**${typestring}**`
   }
 
-  get (query) {
-    const terms = query.split(/\.|#/).map(text => text.toLowerCase())
+  get (...terms) {
+    terms = terms.map(term => term.toLowerCase())
 
     let elem = this.children.get(terms.shift())
     if (!elem || !terms.length) return elem || null
@@ -74,22 +74,23 @@ class Doc extends DocBase {
   search (query) {
     const result = this.fuse.search(query).slice(0, 10)
     if (!result.length) return null
-    return result.map(name => this.get(name))
+    return result.map(name => this.get(name.split('#')))
   }
 
   resolveEmbed (query) {
-    const element = this.get(query)
+    const element = this.get(query.split(/\.|#/))
     if (element) return element.embed()
 
     const searchResults = this.search(query)
     if (!searchResults) return null
 
-    return this.baseEmbed()
-      .setTitle(`Search results:`)
-      .setDescription(searchResults.map(el => `**${el.link}**`).join('\n'))
+    const embed = this.baseEmbed()
+    embed.title = 'Search results:'
+    embed.description = searchResults.map(el => `**${el.link}**`).join('\n')
+    return embed
   }
 
-  toJSON () {
+  toFuseFormat () {
     const parents = Array.from(this.children.values())
 
     const children = parents
@@ -143,7 +144,6 @@ class Doc extends DocBase {
       rpc: 'devsnek'
     }[project]
 
-    console.log(`https://raw.githubusercontent.com/${dev}/${project}/docs/${branch}.json`)
     const { data } = await fetch(`https://raw.githubusercontent.com/${dev}/${project}/docs/${branch}.json`)
     return new Doc(name, data)
   }
