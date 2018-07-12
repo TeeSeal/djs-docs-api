@@ -35,7 +35,9 @@ class Doc extends DocBase {
   }
 
   get (...terms) {
-    terms = terms.map(term => term.toLowerCase())
+    terms = terms
+      .filter(term => term)
+      .map(term => term.toLowerCase())
 
     let elem = this.children.get(terms.shift())
     if (!elem || !terms.length) return elem || null
