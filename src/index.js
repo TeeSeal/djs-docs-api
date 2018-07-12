@@ -28,13 +28,10 @@ app.use('/:project/:branch', async (req, res, next) => {
   next()
 })
 
-app.get('/:project/:branch', (req, res) => {
-  return res.status(200).json(res.locals.doc.toJSON())
-})
-
 app.get('/:project/:branch/search', (req, res) => {
   if (!req.query.q) return badRequest(res, 'No search query specified.')
   const results = res.locals.doc.search(req.query.q)
+  if (!results) res.status(200).json([])
   return res.status(200).json(results.map(result => result.toJSON()))
 })
 
@@ -44,17 +41,22 @@ app.get('/:project/:branch/embed', (req, res) => {
   return res.status(200).json(embed)
 })
 
-app.get('/:project/:branch/:parent', (req, res) => {
-  const element = res.locals.doc.get(req.params.parent)
-  if (!element) return notFound(res, 'No such element.')
-  return res.status(200).json(element.toJSON())
-})
+function fetchElement (req, res) {
+  let element
+  if (req.params.parent) {
+    element = res.locals.doc.get(req.params.parent, req.params.child)
+    if (!element) return notFound(res, 'No such element.')
+  } else {
+    element = res.locals.doc
+  }
 
-app.get('/:project/:branch/:parent/:child', (req, res) => {
-  const element = res.locals.doc.get(req.params.parent, req.params.child)
-  if (!element) return notFound(res, 'No such element.')
-  return res.status(200).json(element.toJSON())
-})
+  const response = req.query.raw ? element.originalJSON : element.toJSON()
+  return res.status(200).json(response)
+}
+
+app.get('/:project/:branch', fetchElement)
+app.get('/:project/:branch/:parent', fetchElement)
+app.get('/:project/:branch/:parent/:child', fetchElement)
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}.`)
