@@ -123,6 +123,16 @@ class Doc extends DocBase {
     return formattedParents.concat(formattedChildren)
   }
 
+  toJSON () {
+    const json = {}
+
+    for (const key of ['classes', 'typedefs', 'interfaces']) {
+      json[key] = this[key].map(item => item.toJSON())
+    }
+
+    return json
+  }
+
   static getRepoURL (id) {
     const [name, branch] = id.split('/')
     const project = {
