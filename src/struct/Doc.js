@@ -127,6 +127,7 @@ class Doc extends DocBase {
     const json = {}
 
     for (const key of ['classes', 'typedefs', 'interfaces']) {
+      if (!this[key]) continue
       json[key] = this[key].map(item => item.toJSON())
     }
 
@@ -148,14 +149,15 @@ class Doc extends DocBase {
     const name = `${project}/${branch}`
     if (docCache.has(name)) return docCache.get(name)
 
-    const dev = {
-      'discord.js': 'hydrabolt',
-      command: 'Gawdl3y',
-      rpc: 'devsnek'
+    const [dev, longProject] = {
+      main: ['hydrabolt', 'discord.js'],
+      commando: ['Gawdl3y', 'discord.js-commando'],
+      rpc: ['devsnek', 'discord-rpc']
     }[project]
+    if (!dev) return null
 
     const { data } = await fetch(
-      `https://raw.githubusercontent.com/${dev}/${project}/docs/${branch}.json`
+      `https://raw.githubusercontent.com/${dev}/${longProject}/docs/${branch}.json`
     ).catch(() => ({}))
     if (!data) return null
 
