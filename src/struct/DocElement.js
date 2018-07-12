@@ -1,16 +1,6 @@
 const DocBase = require('./DocBase')
 const { stripIndents } = require('common-tags')
 
-const types = {
-  CLASS: 'class',
-  EVENT: 'event',
-  INTERFACE: 'interface',
-  METHOD: 'method',
-  PARAM: 'param',
-  PROP: 'prop',
-  TYPEDEF: 'typedef'
-}
-
 class DocElement extends DocBase {
   constructor (doc, docType, data, parent) {
     super(data)
@@ -25,29 +15,6 @@ class DocElement extends DocBase {
     this.return = null
     this.examples = null
     this.type = null
-  }
-
-  childrenOfType (type) {
-    const filtered = Array.from(this.children.values())
-      .filter(child => child.docType === type)
-
-    return filtered.length ? filtered : null
-  }
-
-  get props () {
-    return this.childrenOfType(types.PROP)
-  }
-
-  get methods () {
-    return this.childrenOfType(types.METHOD)
-  }
-
-  get events () {
-    return this.childrenOfType(types.EVENT)
-  }
-
-  get params () {
-    return this.childrenOfType(types.PARAM)
   }
 
   get url () {
@@ -220,7 +187,7 @@ class DocElement extends DocBase {
   }
 
   static get types () {
-    return types
+    return DocBase.types
   }
 }
 
