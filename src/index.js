@@ -28,19 +28,6 @@ app.use('/:project/:branch', async (req, res, next) => {
   next()
 })
 
-app.get('/:project/:branch/search', (req, res) => {
-  if (!req.query.q) return badRequest(res, 'No search query specified.')
-  const results = res.locals.doc.search(req.query.q)
-  if (!results) res.status(200).json([])
-  return res.status(200).json(results.map(result => result.toJSON()))
-})
-
-app.get('/:project/:branch/embed', (req, res) => {
-  if (!req.query.q) return badRequest(res, 'No search query specified.')
-  const embed = res.locals.doc.resolveEmbed(req.query.q)
-  return res.status(200).json(embed)
-})
-
 function fetchElement (req, res) {
   let element
   if (req.params.parent) {
@@ -55,8 +42,21 @@ function fetchElement (req, res) {
 }
 
 app.get('/:project/:branch', fetchElement)
-app.get('/:project/:branch/:parent', fetchElement)
-app.get('/:project/:branch/:parent/:child', fetchElement)
+app.get('/:project/:branch/el/:parent', fetchElement)
+app.get('/:project/:branch/el/:parent/:child', fetchElement)
+
+app.get('/:project/:branch/search', (req, res) => {
+  if (!req.query.q) return badRequest(res, 'No search query specified.')
+  const results = res.locals.doc.search(req.query.q)
+  if (!results) res.status(200).json([])
+  return res.status(200).json(results.map(result => result.toJSON()))
+})
+
+app.get('/:project/:branch/embed', (req, res) => {
+  if (!req.query.q) return badRequest(res, 'No search query specified.')
+  const embed = res.locals.doc.resolveEmbed(req.query.q)
+  return res.status(200).json(embed)
+})
 
 app.get('*', (req, res) => notFound(res))
 
