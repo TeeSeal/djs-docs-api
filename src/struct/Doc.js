@@ -75,7 +75,7 @@ class Doc extends DocBase {
   baseEmbed () {
     const [project, branch] = this.name.split('/')
     const title = {
-      main: `Discord.js Docs`,
+      main: 'Discord.js Docs',
       commando: 'Commando Docs',
       rpc: 'RPC Docs'
     }[project]
