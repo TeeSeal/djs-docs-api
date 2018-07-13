@@ -58,6 +58,8 @@ app.get('/:project/:branch', fetchElement)
 app.get('/:project/:branch/:parent', fetchElement)
 app.get('/:project/:branch/:parent/:child', fetchElement)
 
+app.get('*', (req, res) => notFound(res))
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}.`)
 })

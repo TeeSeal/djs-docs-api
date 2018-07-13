@@ -155,7 +155,7 @@ class Doc extends DocBase {
       main: ['hydrabolt', 'discord.js'],
       commando: ['Gawdl3y', 'discord.js-commando'],
       rpc: ['devsnek', 'discord-rpc']
-    }[project]
+    }[project] || []
     if (!dev) return null
 
     const { data } = await fetch(
